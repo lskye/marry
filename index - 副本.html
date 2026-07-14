@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>婚礼邀请函</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --ink-soft: rgba(26,20,16,0.55);
+    --ink-faint: rgba(26,20,16,0.28);
+    --gold: #c9a96e;
+    --gold-dim: rgba(201,169,110,0.35);
+    --surface: rgba(255,250,244,0.05);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Noto Serif SC","STSong","SimSun","KaiTi","楷体",serif;
+    color: var(--ink); background: #080808;
+    overflow-x: hidden; -webkit-font-smoothing: antialiased;
+  }
+
+  .grain {
+    position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 0.035;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  .scroll-wrap {
+    position: relative; height: 100vh; overflow-y: auto; overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+  }
+  .scroll-wrap::-webkit-scrollbar { width: 0; }
+
+  .wordart {
+    text-align: center;
+    /* 飘逸英文手写体 */
+    font-family: "Great Vibes","Tangerine","Dancing Script",cursive;
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: 0.04em;
+    background: linear-gradient(175deg,
+      #9a3030 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-layer {
+    position: fixed; inset: -5vh -5vw;
+    background: url("images/bg.png") center/cover no-repeat;
+    will-change: transform; z-index: 0;
+  }
+
+  .xi-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    will-change: transform; display: flex; align-items: center; justify-content: center;
+  }
+  .xi-bg span {
+    font-size: min(70vw,500px); color: rgba(191,160,106,0.025);
+    font-family: "Noto Serif SC","STSong","KaiTi",serif; user-select: none;
+  }
+
+  .page {
+    position: relative; height: 100vh; scroll-snap-align: start;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; z-index: 1; pointer-events: none;
+  }
+
+  .content {
+    position: relative; z-index: 3; pointer-events: auto;
+    will-change: transform; display: flex; flex-direction: column;
+    align-items: center;
+    opacity: 0; transform: translateY(48px);
+    transition: opacity 1s cubic-bezier(0.22,0.61,0.36,1),
+                transform 1s cubic-bezier(0.22,0.61,0.36,1);
+  }
+  .content.visible { opacity: 1; transform: translateY(0); }
+
+  /* ===== 第一页 ===== */
+  .page-1 .photo-wrap {
+    position: relative; width: 60vw; max-width: 480px;
+    margin-bottom: 2.2rem;
+    margin-top: -8vh;
+  }
+  .page-1 .photo-wrap::before {
+    content: ""; position: absolute; top: 40%; left: 50%;
+    transform: translate(-50%,-50%); width: 90%; height: 85%;
+    background: radial-gradient(ellipse 50% 55% at 50% 50%,
+      rgba(190,80,50,0.25) 0%, rgba(180,60,30,0.12) 35%, transparent 70%);
+    border-radius: 50%; filter: blur(30px); z-index: -1; pointer-events: none;
+  }
+  .page-1 .photo-wrap img {
+    width: 100%; display: block; position: relative; z-index: 1;
+    transition: opacity 0.2s linear;
+    -webkit-mask-image: radial-gradient(ellipse 62% 76% at 50% 50%, #000 28%, transparent 100%);
+    mask-image: radial-gradient(ellipse 62% 76% at 50% 50%, #000 28%, transparent 100%);
+  }
+  .page-1 .photo-wrap canvas {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 2; pointer-events: none;
+  }
+
+  .page-1 .corner-marks {
+    position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  }
+  .corner-mark {
+    position: absolute; width: 18px; height: 18px;
+    border-color: var(--gold-dim); border-style: solid; opacity: 0.5;
+  }
+  .corner-mark.tl { top: 18%; left: 10%; border-width: 1px 0 0 1px; }
+  .corner-mark.tr { top: 18%; right: 10%; border-width: 1px 1px 0 0; }
+  .corner-mark.bl { bottom: 30%; left: 10%; border-width: 0 0 1px 1px; }
+  .corner-mark.br { bottom: 30%; right: 10%; border-width: 0 1px 1px 0; }
+
+  .page-1 .names {
+    font-size: clamp(1.8rem,4.5vw,2.6rem); font-weight: 400;
+    letter-spacing: 0.38em; color: var(--ink); text-align: center;
+    margin-bottom: 0.7rem;
+  }
+  .page-1 .names .amp {
+    font-size: 0.72em; color: var(--gold); margin: 0 0.12em;
+    vertical-align: 0.08em; font-style: italic;
+  }
+  .page-1 .invite-text {
+    font-size: clamp(1rem,1.8vw,1.1rem); letter-spacing: 0.2em;
+    color: var(--ink-soft); text-align: center;
+    margin-bottom: 0.6rem;
+    padding-top: 4rem;
+    padding-bottom:1rem;
+  }
+  .page-1 .sub {
+    font-size: clamp(0.82rem,1.6vw,0.95rem); letter-spacing: 0.3em;
+    color: var(--ink-soft); text-align: center;
+  }
+
+  .scroll-hint {
+    position: absolute; bottom: 2.2rem; left: 50%; transform: translateX(-50%);
+    color: var(--ink-faint); font-size: 0.72rem; letter-spacing: 0.22em;
+    animation: hintPulse 2.4s ease-in-out infinite; pointer-events: none;
+  }
+  @keyframes hintPulse {
+    0%,100% { opacity: 0.2; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 0.6; transform: translateX(-50%) translateY(5px); }
+  }
+
+  /* ===== 第二页 ===== */
+  .page-2 { justify-content: flex-start; padding-top: 22vh; }
+  .page-2 .timeline {
+    position: relative; max-width: 340px; width: 82vw;
+    padding: 2.5rem 0 2.5rem 2.8rem;
+    background: var(--surface);
+    backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px);
+  }
+  .page-2 .timeline::before {
+    content: ""; position: absolute; left: 1.2rem; top: 2.8rem; bottom: 2.8rem;
+    width: 1px;
+    background: linear-gradient(to bottom,transparent,var(--gold-dim),var(--gold-dim),transparent);
+  }
+  .page-2 .tl-title {
+    padding-bottom: 4rem;
+  }
+
+  .page-2 .timeline .tl-item {
+    position: relative; margin-bottom: 1.8rem; padding-left: 1.2rem;
+  }
+  .page-2 .timeline .tl-item:last-child { margin-bottom: 0; }
+  .page-2 .timeline .tl-item::before {
+    content: ""; position: absolute; left: -1.7rem; top: 0.5em;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--gold); opacity: 0.55;
+  }
+  .page-2 .timeline .tl-item .tl-key {
+    display: block; font-size: 0.82rem; letter-spacing: 0.25em;
+    color: var(--gold); margin-bottom: 0.4rem;
+  }
+  .page-2 .timeline .tl-item .tl-val {
+    font-size: 1rem; letter-spacing: 0.07em; line-height: 1.9; color: var(--ink);
+  }
+
+  .img-cake {
+    position: absolute; bottom: -12vh; left: 50%;
+    transform: translateX(-50%);
+    width: 80vw; max-width: 600px; z-index: 1;
+    opacity: 0.75;
+    mask-image: linear-gradient(to top, #000 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, #000 40%, transparent 100%);
+  }
+
+  /* ===== 第三页 ===== */
+  .page-3 .msg-block { max-width: 380px; width: 82vw; text-align: center; }
+  .page-3 .msg-block .msg-title {
+    font-size: clamp(1.35rem,3vw,1.7rem); font-weight: 400;
+    letter-spacing: 0.32em; color: var(--ink); margin-bottom: 2.2rem;
+  }
+  .page-3 .msg-block p {
+    font-size: 1.05rem; line-height: 2.6; letter-spacing: 0.07em;
+    color: var(--ink); margin-bottom: 0.3rem;
+  }
+  .page-3 .msg-block .msg-close {
+    margin-top: 2.4rem; font-size: 0.95rem; letter-spacing: 0.18em;
+    color: var(--ink-soft);
+  }
+
+  /* ===== 花瓣 ===== */
+  .petals { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+  .petal {
+    position: absolute; border-radius: 50% 0 50% 50%; opacity: 0;
+    animation: petalDrift linear infinite;
+  }
+  @keyframes petalDrift {
+    0%   { opacity:0; transform:translate(0,-10vh) rotate(0deg) scale(0.7); }
+    8%   { opacity:0.45; }
+    80%  { opacity:0.1; }
+    100% { opacity:0; transform:translate(30px,110vh) rotate(420deg) scale(0.25); }
+  }
+
+  .music-btn {
+    position: fixed; top: 1.2rem; right: 1.2rem; z-index: 100;
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--gold-dim); background: rgba(8,8,8,0.5);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.5s;
+  }
+  .music-btn::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--gold); opacity: 0.45;
+    transition: opacity 0.3s, box-shadow 0.3s;
+  }
+  .music-btn.playing::before {
+    opacity: 1; box-shadow: 0 0 12px var(--gold);
+    animation: notePulse 1.8s ease-in-out infinite;
+  }
+  @keyframes notePulse {
+    0%,100% { transform: scale(1); } 50% { transform: scale(1.7); }
+  }
+
+  @media (max-width:480px) {
+    .page-1 .photo-wrap { width: 85vw; }
+    .page-1 .names { font-size: 1.5rem; }
+    .page-2 .timeline { width: 88vw; padding-left: 2.4rem; }
+    .page-2 .timeline::before { left: 1rem; }
+    .page-2 .timeline .tl-item::before { left: -1.5rem; }
+    .page-3 .msg-block { width: 88vw; }
+    .corner-mark.tl { left: 6%; } .corner-mark.tr { right: 6%; }
+    .corner-mark.bl { left: 6%; } .corner-mark.br { right: 6%; }
+  }
+
+  @media (prefers-reduced-motion:reduce) {
+    .content { transition: none; opacity: 1; transform: none; }
+    .petal,.scroll-hint { animation: none; display: none; }
+    .music-btn.playing::before { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" id="bgLayer"></div>
+<div class="xi-bg" id="xiBg"><span>囍</span></div>
+<div class="petals" id="petals"></div>
+<div class="grain"></div>
+<div class="music-btn paused" id="musicBtn"></div>
+
+<div class="scroll-wrap" id="scrollWrap">
+
+  <section class="page page-1" id="page1">
+    <div class="content" data-speed="0.14" data-page="0">
+      <div class="photo-wrap" id="photoWrap">
+        <div class="corner-marks">
+          <i class="corner-mark tl"></i><i class="corner-mark tr"></i>
+          <i class="corner-mark bl"></i><i class="corner-mark br"></i>
+        </div>
+        <img src="1.jpg" alt="新人照片" id="photoImg">
+        <canvas id="particleCanvas"></canvas>
+      </div>
+      <h1 class="names">李焕铭<span class="amp">&</span>毕英婕</h1>
+      <p class="invite-text">诚挚地邀请您参加我们的婚礼</p>
+      <p class="sub">敬 请 莅 临</p>
+    </div>
+    <div class="scroll-hint">向下滑动</div>
+  </section>
+
+  <section class="page page-2">
+    <div class="content" data-speed="0.10" data-page="1">
+      <h2 class="tl-title wordart">Wedding Date</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <span class="tl-key">时 间</span>
+          <span class="tl-val">2026年9月26日<br>农历捌月十六 · 星期六</span>
+        </div>
+        <div class="tl-item">
+          <span class="tl-key">地 点</span>
+          <span class="tl-val">青岛市黄岛区滨海大道2888号<br>鲤鱼门酒店 · 一楼海韵厅</span>
+        </div>
+        <div class="tl-item">
+          <span class="tl-key">流 程</span>
+          <span class="tl-val">11:00 迎宾签到<br>11:30 婚礼仪式<br>11:40 婚宴开始</span>
+        </div>
+      </div>
+    </div>
+    <img src="images/cake-t.png" class="img-cake" alt="">
+  </section>
+
+  <section class="page page-3">
+    <div class="content" data-speed="0.08" data-page="2">
+      <div class="msg-block">
+        <h2 class="msg-title wordart">To Firends</h2>
+        <p>人生中最美好的时刻<br>莫过于与最爱的人携手同行<br>诚挚邀请您见证我们的幸福<br>分享这份喜悦与感动</p>
+        <p>您的到来<br>将是我们最大的荣幸</p>
+        <p class="msg-close">李焕铭 & 毕英婕 · 敬邀</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<audio id="bgm" src="bgm.mp3" loop preload="auto" style="display:none"></audio>
+
+<script>
+;(function () {
+  'use strict'
+
+  /* ====== 粒子破碎系统 ======
+   * 流程：
+   * 1. 图片加载 → 离屏 Canvas 缩小采样区域
+   * 2. getImageData 提取每个采样点的 RGBA
+   * 3. 每个点存为粒子（原始坐标归一化 0-1）
+   * 4. 滚动时：边缘粒子先飞散，中心后飞，粒子继承原色
+   * 5. 原 <img> 同时淡出，被 canvas 粒子覆盖
+   */
+
+  var wrap = document.getElementById('scrollWrap')
+  var bgLayer = document.getElementById('bgLayer')
+  var xiBg = document.getElementById('xiBg')
+  var photoImg = document.getElementById('photoImg')
+  var canvas = document.getElementById('particleCanvas')
+  var ctx = canvas.getContext('2d')
+  var contentEls = document.querySelectorAll('[data-speed]')
+  var ticking = false
+
+  var particles = []
+  var ready = false
+  var SAMPLE_STEP = 6        // 采样间距 (px in source)
+  var MAX_SOURCE_DIM = 400   // 采样图最大边长
+  var MAX_DISPERSION = 340   // 粒子最大飞散距离
+
+  var displayW = 0
+  var displayH = 0
+
+  /** 加载图片，采样像素，生成粒子数组 */
+  function buildParticles() {
+    return new Promise(function (resolve) {
+      var srcImg = new Image()
+      srcImg.onload = function () {
+        // --- 缩放到可控分辨率 ---
+        var scale = srcImg.naturalWidth > MAX_SOURCE_DIM
+          ? MAX_SOURCE_DIM / srcImg.naturalWidth
+          : 1
+        var sw = Math.floor(srcImg.naturalWidth * scale)
+        var sh = Math.floor(srcImg.naturalHeight * scale)
+
+        var offCanvas = document.createElement('canvas')
+        offCanvas.width = sw
+        offCanvas.height = sh
+        var offCtx = offCanvas.getContext('2d')
+        offCtx.drawImage(srcImg, 0, 0, sw, sh)
+
+        // --- 读取像素 ---
+        var imgData = offCtx.getImageData(0, 0, sw, sh)
+        var data = imgData.data
+
+        var cx = sw / 2
+        var cy = sh / 2
+        var rx = sw * 0.465
+        var ry = sh * 0.46
+
+        particles = []
+
+        for (var y = 0; y < sh; y += SAMPLE_STEP) {
+          for (var x = 0; x < sw; x += SAMPLE_STEP) {
+            // 椭圆外跳过
+            var ex = (x - cx) / rx
+            var ey = (y - cy) / ry
+            if (ex * ex + ey * ey > 1) continue
+
+            var idx = (y * sw + x) * 4
+            var a = data[idx + 3]
+            if (a < 25) continue
+
+            particles.push({
+              nx: x / sw,
+              ny: y / sh,
+              r: data[idx],
+              g: data[idx + 1],
+              b: data[idx + 2],
+              angle: Math.random() * Math.PI * 2,
+              speed: 0.22 + Math.random() * 2.5,
+              edgeFactor: Math.sqrt(ex * ex + ey * ey),
+              size: 0.6 + Math.random() * 4.2
+            })
+          }
+        }
+
+        resolve(particles.length > 0)
+      }
+      srcImg.onerror = function () { resolve(false) }
+      srcImg.src = '1.jpg'
+    })
+  }
+
+  /** canvas 尺寸匹配 img 显示尺寸 */
+  function syncCanvas() {
+    displayW = photoImg.clientWidth
+    displayH = photoImg.clientHeight
+    if (!displayW || !displayH) return false
+
+    var dpr = window.devicePixelRatio || 1
+    canvas.width = Math.floor(displayW * dpr)
+    canvas.height = Math.floor(displayH * dpr)
+    canvas.style.width = displayW + 'px'
+    canvas.style.height = displayH + 'px'
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    return true
+  }
+
+  /** 渲染一帧 */
+  function draw(progress) {
+    if (!ready) return
+    ctx.clearRect(0, 0, displayW, displayH)
+    if (progress <= 0.003) return
+
+    var ep = Math.max(0, (progress - 0.04) / 0.96)
+
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i]
+      // 边缘优先度加权
+      var t = ep * (0.08 + p.edgeFactor * 0.92)
+      if (t <= 0) continue
+
+      var dist = t * MAX_DISPERSION * p.speed
+      var dx = Math.cos(p.angle) * dist
+      var dy = Math.sin(p.angle) * dist + t * t * 75
+
+      var px = p.nx * displayW + dx
+      var py = p.ny * displayH + dy
+      if (px < -60 || px > displayW + 60 || py < -60 || py > displayH + 80) continue
+
+      var alpha = 1 - t * 0.85
+      ctx.globalAlpha = alpha
+      ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')'
+      ctx.fillRect(px - p.size / 2, py - p.size / 2, p.size, p.size)
+    }
+    ctx.globalAlpha = 1
+  }
+
+  /** 等 img 加载完 + 布局就绪 → 初始化 */
+  function tryInit() {
+    if (ready) return
+    if (!photoImg.complete || !photoImg.naturalWidth) {
+      requestAnimationFrame(tryInit); return
+    }
+    // 等一帧布局
+    requestAnimationFrame(function () {
+      if (photoImg.clientWidth < 10) {
+        requestAnimationFrame(tryInit); return
+      }
+      if (!syncCanvas()) {
+        requestAnimationFrame(tryInit); return
+      }
+      buildParticles().then(function (ok) {
+        if (!ok) return
+        ready = true
+        frame()
+      })
+    })
+  }
+
+  if (photoImg.complete && photoImg.naturalWidth) {
+    tryInit()
+  } else {
+    photoImg.addEventListener('load', tryInit)
+  }
+
+  /* ====== 视差 ====== */
+  function frame() {
+    var sy = wrap.scrollTop
+    var vh = wrap.clientHeight
+
+    bgLayer.style.transform = 'translate3d(0,' + (sy * 0.025) + 'px,0)'
+    xiBg.style.transform = 'translate3d(0,' + (sy * 0.05) + 'px,0)'
+
+    contentEls.forEach(function (el) {
+      var sp = parseFloat(el.getAttribute('data-speed'))
+      var pg = el.closest('.page')
+      el.style.transform = 'translate3d(0,' + (sy - pg.offsetTop) * sp + 'px,0)'
+    })
+
+    var progress = Math.max(0, Math.min(1, sy / vh))
+    if (ready) {
+      draw(progress)
+      photoImg.style.opacity = Math.max(0, 1 - progress * 1.1).toFixed(3)
+    }
+    ticking = false
+  }
+
+  wrap.addEventListener('scroll', function () {
+    if (!ticking) { requestAnimationFrame(frame); ticking = true }
+  })
+
+  /* ====== 页面淡入 ====== */
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) e.target.classList.add('visible')
+    })
+  }, { threshold: 0.3 })
+  contentEls.forEach(function (el) { observer.observe(el) })
+
+  /* ====== 花瓣 ====== */
+  var petalBox = document.getElementById('petals')
+  var petalColors = ['#c9a96e','#d4b88c','#e0c9a8','#c9796e','#d49e94','#bfa06a']
+  for (var i = 0; i < 25; i++) {
+    var pt = document.createElement('div')
+    pt.className = 'petal'
+    pt.style.left = (Math.random() * 95) + '%'
+    pt.style.top = (-8 - Math.random() * 35) + '%'
+    pt.style.animationDuration = (12 + Math.random() * 22) + 's'
+    pt.style.animationDelay = (Math.random() * 16) + 's'
+    pt.style.background = petalColors[Math.floor(Math.random() * petalColors.length)]
+    var sz = 3.5 + Math.random() * 6
+    pt.style.width = sz + 'px'; pt.style.height = (sz * 1.3) + 'px'
+    petalBox.appendChild(pt)
+  }
+
+  /* ====== 音乐 ====== */
+  var musicBtn = document.getElementById('musicBtn')
+  var bgm = document.getElementById('bgm')
+  var playing = false
+
+  // 舒缓音量
+  if (bgm) { bgm.volume = 0.25 }
+
+  function playM() {
+    if (!bgm) return
+    if (bgm.error) { bgm.load() }
+    bgm.play().then(function () {
+      playing = true
+      musicBtn.classList.remove('paused'); musicBtn.classList.add('playing')
+    }).catch(function (err) {
+      console.warn('bgm play 失败:', err.name || err.message || err)
+    })
+  }
+
+  function pauseM() {
+    if (!bgm) return; bgm.pause(); playing = false
+    musicBtn.classList.remove('playing'); musicBtn.classList.add('paused')
+  }
+
+  // 尝试自动播放
+  playM()
+
+  // 首次交互兜底
+  function initMusic() {
+    if (playing) return; playM()
+  }
+  document.addEventListener('touchstart', initMusic, { once: true, passive: true })
+  document.addEventListener('click', initMusic, { once: true, passive: true })
+
+  musicBtn.addEventListener('click', function (e) {
+    e.stopPropagation()
+    if (playing) { pauseM() } else { playM() }
+  })
+
+  /* ====== 窗口缩放 ====== */
+  var rt
+  window.addEventListener('resize', function () {
+    clearTimeout(rt)
+    rt = setTimeout(function () {
+      if (!ready) return
+      syncCanvas()
+      // 坐标归一化的，尺寸变后直接绘制即可
+      frame()
+    }, 350)
+  })
+
+  frame()
+})()
+</script>
+</body>
+</html>
